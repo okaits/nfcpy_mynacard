@@ -3,7 +3,7 @@ name = "nfcpy-mynacard-py"
 version = "0.0.1"
 description = ""
 authors = [
-    {name = "okaits",email = "okaits@okaits7534.net"}
+    {name = "okaits7534",email = "okaits@okaits7534.net"}
 ]
 license = {text = "MIT License"}
 readme = "README.md"

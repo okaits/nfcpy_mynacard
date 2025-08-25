@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 import getpass
-import nfc
 import asn1crypto.pem
 import nfcpy_mynacard
 

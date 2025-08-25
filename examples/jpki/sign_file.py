@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 import getpass
-import nfc
 import asn1crypto.cms
 import asn1crypto.util
 import asn1crypto.x509
@@ -66,7 +65,7 @@ signer["signature_algorithm"] = asn1crypto.util.OrderedDict([
 if args.signature:
     sign_bin = nfcpy_mynacard.jpki.SignatureCert.sign_data(tag, password, target_data)
 else:
-    sign_bin = nfcpy_mynacard.jpki.UserProofCert.sign_data(tag, password, target_data)
+    sign_bin = nfcpy_mynacard.jpki.UserProofCert.sign_data(tag, int(password), target_data)
 
 signer["signature"] = sign_bin
 signer["sid"] = asn1crypto.cms.SignerIdentifier({"subject_key_identifier": cert.key_identifier_value.native})

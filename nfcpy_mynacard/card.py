@@ -1,7 +1,4 @@
-import collections.abc
-import typing
 import nfc
-import time
 import nfcpy_mynacard.error
 
 AP_DF = {

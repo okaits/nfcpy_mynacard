@@ -7,7 +7,7 @@ class JPKI:
     """ JPKI AP """
     @staticmethod
     def user_proof_cert(tag: nfc.tag.Tag, password: int) -> None:
-        """ 利用者認証用電子証明書のパスワードでログインする
+        """ 利用者証明用電子証明書のパスワードでログインする
         注: JPKI APを選択している必要があります。 """
         if len(str(password)) != 4:
             raise nfcpy_mynacard.error.InvalidPasswordError

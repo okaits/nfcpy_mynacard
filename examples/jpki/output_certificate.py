@@ -8,7 +8,7 @@ import nfcpy_mynacard
 parser = argparse.ArgumentParser("output_certificate", description="指定された証明書を標準出力に出力します。")
 cmd = parser.add_mutually_exclusive_group(required=True)
 cmd.add_argument("--signature", action="store_true", help="署名用電子証明書を出力します。")
-cmd.add_argument("--userproof", action="store_true", help="利用者認証用電子証明書を出力します。")
+cmd.add_argument("--userproof", action="store_true", help="利用者証明用電子証明書を出力します。")
 
 args = parser.parse_args()
 

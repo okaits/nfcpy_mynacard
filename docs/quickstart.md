@@ -50,3 +50,17 @@ name = four_attrs["name"] # 氏名（str）
 address = four_attrs["address"] # 住所（str）
 birthday = four_attrs["birthday"] # 誕生日（datetime.datetime）
 sex = four_attrs["sex"] # 性別（str: "MALE", "FEMALE", "NOT_APPLICABLE", "OTHER"のいずれか）
+```
+
+## その他
+対応していないAP・操作については、自力でAPDUを発行することもできます。
+```py
+# APを選択
+nfcpy_mynacard.card.select_ap(tag, bytes.fromhex("D3 92 F0 00 26 01 00 00 00 01"))
+
+# EFを選択
+nfcpy_mynacard.card.select_ef(tag, bytes.fromhex("00 AA"))
+
+# APDUを発行
+nfcpy_mynacard.card.communicate(tag, bytes.fromhex("00 B0 00 00 00 00 00"))
+```

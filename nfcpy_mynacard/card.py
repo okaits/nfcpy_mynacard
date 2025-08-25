@@ -1,6 +1,7 @@
 import collections.abc
 import typing
 import nfc
+import time
 import nfcpy_mynacard.error
 
 AP_DF = {
@@ -8,10 +9,15 @@ AP_DF = {
     "input_assistance": bytes.fromhex("D3 92 10 00 31 00 01 01 04 08")
 }
 
-def connect(callback: collections.abc.Callable[[nfc.tag.Tag], typing.Any]):
+def connect() -> nfc.tag.Tag:
     """ マイナンバーカードに接続する。 """
     clf = nfc.ContactlessFrontend("usb")
-    clf.connect(rdwr={"on-connect": callback, "targets": {"106B"}})
+    card = clf.sense(nfc.clf.RemoteTarget("106B"), iterations=5, interval=0.5)
+    if card is not None:
+        return nfc.tag.activate(clf, card)
+    else:
+        # もたもたしている間にカードとの通信が途切れてしまったので、やり直す
+        return connect()
 
 def communicate(tag: nfc.tag.Tag, apdu: bytes) -> bytes:
     """ マイナンバーカードとバイナリを送受信。 """

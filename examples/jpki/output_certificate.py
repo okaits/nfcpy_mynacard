@@ -12,17 +12,16 @@ cmd.add_argument("--userproof", action="store_true", help="利用者証明用電
 
 args = parser.parse_args()
 
-def on_connect(tag: nfc.tag.Tag):
-    if args.signature:
-        cert_der = nfcpy_mynacard.jpki.SignatureCert.get_cert(tag, getpass.getpass("Password> "))
-        cert_pem = asn1crypto.pem.armor("CERTIFICATE", cert_der)
-        print(cert_pem.decode(encoding="ascii"))
+tag = nfcpy_mynacard.card.connect()
 
-    elif args.userproof:
-        cert_der = nfcpy_mynacard.jpki.UserProofCert.get_cert(tag)
-        cert_pem = asn1crypto.pem.armor("CERTIFICATE", cert_der)
-        print(cert_pem.decode(encoding="ascii"))
+if args.signature:
+    cert_der = nfcpy_mynacard.jpki.SignatureCert.get_cert(tag, getpass.getpass("Password> "))
+    cert_pem = asn1crypto.pem.armor("CERTIFICATE", cert_der)
+    print(cert_pem.decode(encoding="ascii"))
 
-    else: assert False
+elif args.userproof:
+    cert_der = nfcpy_mynacard.jpki.UserProofCert.get_cert(tag)
+    cert_pem = asn1crypto.pem.armor("CERTIFICATE", cert_der)
+    print(cert_pem.decode(encoding="ascii"))
 
-nfcpy_mynacard.card.connect(on_connect)
+else: assert False

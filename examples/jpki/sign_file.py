@@ -17,66 +17,65 @@ cmd.add_argument("--userproof", action="store_true", help="利用者証明用電
 
 args = parser.parse_args()
 
-def on_connect(tag: nfc.tag.Tag):
-    with open(args.file, "rb") as h:
-        target_data = h.read()
+tag = nfcpy_mynacard.card.connect()
 
-    password = getpass.getpass("Password> ")
+with open(args.file, "rb") as h:
+    target_data = h.read()
 
-    # 以下、https://stackoverflow.com/questions/58664221/creating-and-saving-cms-pkcs7-objects-in-python を大幅に参考にしています。
-    # SignedDataオブジェクト生成
-    signature = asn1crypto.cms.SignedData()
-    signature["version"] = "v1"
-    signature["encap_content_info"] = asn1crypto.util.OrderedDict([
-        ("content_type", "data"),
-        ("content", target_data)
-    ])
-    signature["digest_algorithms"] = [
-        asn1crypto.util.OrderedDict({
-            ("algorithm", "sha256"),
-            ("parameters", None)
-        })
-    ]
+password = getpass.getpass("Password> ")
 
-    # 証明書の抽出
-    if args.signature:
-        cert_der = nfcpy_mynacard.jpki.SignatureCert.get_cert(tag, password)
-    elif args.userproof:
-        cert_der = nfcpy_mynacard.jpki.UserProofCert.get_cert(tag)
-    else: assert False
-
-    cert = asn1crypto.x509.Certificate.load(cert_der)
-
-    signature["certificates"] = [cert]
-
-    # SignerInfoオブジェクト生成
-    signer = asn1crypto.cms.SignerInfo()
-    signer["version"] = "v1"
-    signer["digest_algorithm"] = asn1crypto.util.OrderedDict([
+# 以下、https://stackoverflow.com/questions/58664221/creating-and-saving-cms-pkcs7-objects-in-python を大幅に参考にしています。
+# SignedDataオブジェクト生成
+signature = asn1crypto.cms.SignedData()
+signature["version"] = "v1"
+signature["encap_content_info"] = asn1crypto.util.OrderedDict([
+    ("content_type", "data"),
+    ("content", target_data)
+])
+signature["digest_algorithms"] = [
+    asn1crypto.util.OrderedDict({
         ("algorithm", "sha256"),
         ("parameters", None)
-    ])
-    signer["signature_algorithm"] = asn1crypto.util.OrderedDict([
-        ("algorithm", "sha256_rsa"),
-        ("parameters", None)
-    ])
+    })
+]
 
-    # データに署名
-    if args.signature:
-        sign_bin = nfcpy_mynacard.jpki.SignatureCert.sign_data(tag, password, target_data)
-    else:
-        sign_bin = nfcpy_mynacard.jpki.UserProofCert.sign_data(tag, password, target_data)
+# 証明書の抽出
+if args.signature:
+    cert_der = nfcpy_mynacard.jpki.SignatureCert.get_cert(tag, password)
+elif args.userproof:
+    cert_der = nfcpy_mynacard.jpki.UserProofCert.get_cert(tag)
+else: assert False
 
-    signer["signature"] = sign_bin
-    signer["sid"] = asn1crypto.cms.SignerIdentifier({"subject_key_identifier": cert.key_identifier_value.native})
+cert = asn1crypto.x509.Certificate.load(cert_der)
 
-    signature["signer_infos"] = [signer]
+signature["certificates"] = [cert]
 
-    output = asn1crypto.cms.ContentInfo()
-    output["content_type"] = "signed_data"
-    output["content"] = signature
+# SignerInfoオブジェクト生成
+signer = asn1crypto.cms.SignerInfo()
+signer["version"] = "v1"
+signer["digest_algorithm"] = asn1crypto.util.OrderedDict([
+    ("algorithm", "sha256"),
+    ("parameters", None)
+])
+signer["signature_algorithm"] = asn1crypto.util.OrderedDict([
+    ("algorithm", "sha256_rsa"),
+    ("parameters", None)
+])
 
-    with open(args.output, "wb") as h:
-        h.write(asn1crypto.pem.armor("PKCS7", output.dump()))
+# データに署名
+if args.signature:
+    sign_bin = nfcpy_mynacard.jpki.SignatureCert.sign_data(tag, password, target_data)
+else:
+    sign_bin = nfcpy_mynacard.jpki.UserProofCert.sign_data(tag, password, target_data)
 
-nfcpy_mynacard.card.connect(on_connect)
+signer["signature"] = sign_bin
+signer["sid"] = asn1crypto.cms.SignerIdentifier({"subject_key_identifier": cert.key_identifier_value.native})
+
+signature["signer_infos"] = [signer]
+
+output = asn1crypto.cms.ContentInfo()
+output["content_type"] = "signed_data"
+output["content"] = signature
+
+with open(args.output, "wb") as h:
+    h.write(asn1crypto.pem.armor("PKCS7", output.dump()))

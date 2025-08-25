@@ -84,3 +84,49 @@ class InputAssistance:
             else:
                 raise
         return
+    
+    @staticmethod
+    def bcode_auth(tag: nfc.tag.Tag, bcode: int):
+        """ 照会番号Bを用いてログインする """
+        if len(str(bcode)) != 14:
+            raise nfcpy_mynacard.error.IncorrectPasswordError("照会番号Bの形式が異なります。生年がカードに記載された2桁であることを確認してください。")
+
+        nfcpy_mynacard.card.select_ef(tag, bytes.fromhex("00 15"))
+        encoded_bcode = str(bcode).encode(encoding="ascii")
+        try:
+            nfcpy_mynacard.card.communicate(tag, bytes.fromhex("00 20 00 80") + len(encoded_bcode).to_bytes() + encoded_bcode)
+        except nfcpy_mynacard.error.CardCommunicationError as carderr_exc:
+            if carderr_exc.res_data[-2] == 0x63:
+                incorrectpwd_exc = nfcpy_mynacard.error.IncorrectPasswordError("照会番号Bが違います。")
+                incorrectpwd_exc.res_data = carderr_exc.res_data
+                incorrectpwd_exc.remaining_count = carderr_exc.res_data[-1] & 0x0F
+                raise incorrectpwd_exc from carderr_exc
+            elif carderr_exc.res_data[-2:] == bytes.fromhex("69 84"):
+                blockedpwd_exc = nfcpy_mynacard.error.PasswordDisabledError("照会番号Bの試行回数の上限を超えました。市町村役場にて対応を受けてください。")
+                blockedpwd_exc.res_data = carderr_exc.res_data
+                raise blockedpwd_exc from carderr_exc
+            else:
+                raise
+
+    @staticmethod
+    def acode_auth(tag: nfc.tag.Tag, acode: int):
+        """ 照会番号Aを用いてログインする """
+        if len(str(acode)) != 12:
+            raise nfcpy_mynacard.error.IncorrectPasswordError("照会番号Aの形式が異なります。")
+
+        nfcpy_mynacard.card.select_ef(tag, bytes.fromhex("00 14"))
+        encoded_bcode = str(acode).encode(encoding="ascii")
+        try:
+            nfcpy_mynacard.card.communicate(tag, bytes.fromhex("00 20 00 80") + len(encoded_bcode).to_bytes() + encoded_bcode)
+        except nfcpy_mynacard.error.CardCommunicationError as carderr_exc:
+            if carderr_exc.res_data[-2] == 0x63:
+                incorrectpwd_exc = nfcpy_mynacard.error.IncorrectPasswordError("照会番号Aが違います。")
+                incorrectpwd_exc.res_data = carderr_exc.res_data
+                incorrectpwd_exc.remaining_count = carderr_exc.res_data[-1] & 0x0F
+                raise incorrectpwd_exc from carderr_exc
+            elif carderr_exc.res_data[-2:] == bytes.fromhex("69 84"):
+                blockedpwd_exc = nfcpy_mynacard.error.PasswordDisabledError("照会番号Aの試行回数の上限を超えました。市町村役場にて対応を受けてください。")
+                blockedpwd_exc.res_data = carderr_exc.res_data
+                raise blockedpwd_exc from carderr_exc
+            else:
+                raise

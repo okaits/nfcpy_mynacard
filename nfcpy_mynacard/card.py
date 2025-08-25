@@ -4,7 +4,8 @@ import nfc
 import nfcpy_mynacard.error
 
 AP_DF = {
-    "JPKI": bytes.fromhex("D3 92 F0 00 26 01 00 00 00 01")
+    "JPKI": bytes.fromhex("D3 92 F0 00 26 01 00 00 00 01"),
+    "input_assistance": bytes.fromhex("D3 92 10 00 31 00 01 01 04 08")
 }
 
 def connect(callback: collections.abc.Callable[[nfc.tag.Tag], typing.Any]):

@@ -1,5 +1,5 @@
 [project]
-name = "nfcpy-mynacard-py"
+name = "nfcpy-mynacard"
 version = "0.0.1"
 description = ""
 authors = [

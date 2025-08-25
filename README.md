@@ -1,6 +1,11 @@
 # nfcpy_mynacard
 nfcpyを用いてマイナンバーカードをいじくるライブラリです。
 
+## Installtion
+```
+python3 -m pip install git+https://github.com/okaits/nfcpy_mynacard@v0.0.1
+```
+
 ## Features
 ### JPKI AP
 * 利用者証明用電子証明書、署名用電子証明書を抽出（der出力）

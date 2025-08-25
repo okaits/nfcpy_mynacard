@@ -32,6 +32,8 @@ python3 -m pip install git+https://github.com/okaits/nfcpy_mynacard@v0.0.1
 `examples/`ディレクトリに、プログラム例が載っています。
 * `examples/jpki/output_certificate.py`: 証明書を出力する（pem出力）
 * `examples/jpki/sign_file.py`: ファイルに対して署名する（PKCS#7出力）
+* `examples/input_assistance/get_four_attrs.py`: 基本4事項を取得する
+* `examples/input_assistance/get_mynumber.py`: 個人番号（マイナンバー）を取得する（法規制に注意！）
 
 `/docs/quickstart.md`も参考にしてください。
 
